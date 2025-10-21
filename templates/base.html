@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}故事会{% endblock %}</title>
+  <!-- 引入Font Awesome图标库 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Georgia", "Times New Roman", "SimSun", serif;
+      background-color: #f9f6f0; /* 书香风格背景色 */
+      color: #6d4c41; /* 木质色调文字 */
+      line-height: 1.6;
+    }
+
+    /* 容器通用样式 */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* 导航栏样式（浅色系书香风格） */
+    .navbar {
+      background: linear-gradient(135deg, #f5f0e6 0%, #e8dcc5 100%); /* 浅米→淡棕渐变 */
+      padding: 16px 0;
+      box-shadow: 0 2px 6px rgba(109, 76, 65, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      font-size: 24px;
+      color: #6d4c41;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #6d4c41;
+    }
+
+    /* 桌面导航链接 */
+    .nav-links {
+      display: none;
+      align-items: center;
+      gap: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .nav-links {
+        display: flex;
+      }
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .nav-link {
+      color: #6d4c41;
+      font-size: 15px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: #8b5a2b; /* 淡棕色下划线 */
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: #8b5a2b;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .login-btn {
+      background-color: transparent;
+      border: 1px solid #d8c8b5; /* 浅棕边框 */
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6d4c41;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      border-color: #8b5a2b;
+      color: #8b5a2b;
+      background-color: rgba(139, 90, 43, 0.05);
+    }
+
+    /* 移动端菜单按钮 */
+    .menu-toggle {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #6d4c41;
+      cursor: pointer;
+      display: block;
+    }
+
+    @media (min-width: 768px) {
+      .menu-toggle {
+        display: none;
+      }
+    }
+
+    /* 移动端导航菜单 */
+    .mobile-menu {
+      display: none;
+      background-color: #f5f0e6; /* 浅米色移动端菜单 */
+      padding: 16px 0;
+      box-shadow: 0 4px 6px rgba(109, 76, 65, 0.1);
+    }
+
+    .mobile-menu.show {
+      display: block;
+    }
+
+    .mobile-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .mobile-nav .nav-link {
+      padding: 8px 0;
+    }
+
+    /* 主内容区域样式 */
+    main {
+      min-height: calc(100vh - 80px); /* 减去导航栏高度 */
+      padding: 40px 0;
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  <!-- 导航栏 -->
+  <header class="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <!-- 首页链接：无需登录 -->
+        <a href="{% url 'stories:index' %}" class="logo">
+          <i class="fa fa-book logo-icon"></i>
+          <span class="logo-text">故事会</span>
+        </a>
+
+        <!-- 桌面导航：非首页链接均需登录 -->
+        <nav class="nav-links">
+          <a href="{% url 'stories:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">首页</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'stories:generate_story' %}" class="nav-link {% if request.resolver_match.url_name == 'generate_story' %}active{% endif %}">生成故事</a>
+            <a href="{% url 'stories:stories' %}" class="nav-link {% if request.resolver_match.url_name == 'stories' %}active{% endif %}">故事库</a>
+{#            <a href="{% url 'user:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">个人中心</a>#}
+            <button class="login-btn" id="desktopLoginBtn">退出登录</button>
+          {% else %}
+            <a href="{% url 'user:login' %}" class="nav-link">生成故事</a>
+            <a href="{% url 'user:login' %}" class="nav-link">故事库</a>
+            <a href="{% url 'user:login' %}" class="nav-link">个人中心</a>
+            <button class="login-btn" id="desktopLoginBtn">登录 / 注册</button>
+          {% endif %}
+        </nav>
+
+        <!-- 移动端菜单按钮 -->
+        <button class="menu-toggle" id="menuToggle">
+          <i class="fa fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- 移动端导航菜单：非首页链接均需登录 -->
+    <div class="mobile-menu" id="mobileMenu">
+      <div class="container">
+        <div class="mobile-nav">
+          <a href="{% url 'stories:index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">首页</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'stories:generate_story' %}" class="nav-link {% if request.resolver_match.url_name == 'generate_story' %}active{% endif %}">生成故事</a>
+            <a href="{% url 'stories:stories' %}" class="nav-link {% if request.resolver_match.url_name == 'stories' %}active{% endif %}">故事库</a>
+{#            <a href="{% url 'user:profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">个人中心</a>#}
+            <button class="login-btn" id="mobileLoginBtn">退出登录</button>
+          {% else %}
+            <a href="{% url 'user:login' %}" class="nav-link">生成故事</a>
+            <a href="{% url 'user:login' %}" class="nav-link">故事库</a>
+            <a href="{% url 'user:login' %}" class="nav-link">个人中心</a>
+            <button class="login-btn" id="mobileLoginBtn">登录 / 注册</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 处理登录/退出按钮状态切换
+      const loginBtns = [
+        document.getElementById('desktopLoginBtn'),
+        document.getElementById('mobileLoginBtn')
+      ];
+
+      loginBtns.forEach(btn => {
+        if (btn) {
+          {% if user.is_authenticated %}
+          // 已登录：按钮显示"退出登录"，点击清除登录状态
+          btn.textContent = '退出登录';
+          btn.addEventListener('click', function () {
+            // 这里应该是退出登录的逻辑
+            {#window.location.href = "{% url 'user:logout' %}";#}
+          });
+          {% else %}
+          // 未登录：按钮显示"登录/注册"，点击跳登录页
+          btn.addEventListener('click', function () {
+            window.location.href = "{% url 'user:login' %}";
+          });
+          {% endif %}
+        }
+      });
+
+      // 保留移动端菜单切换功能
+      const menuToggle = document.getElementById('menuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function () {
+          mobileMenu.classList.toggle('show');
+          // 切换菜单图标（展开为×，收起为≡）
+          const icon = menuToggle.querySelector('i');
+          if (mobileMenu.classList.contains('show')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+          } else {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        });
+      }
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="zh-CN">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
+{#    <title>{% block title %}故事会{% endblock %}</title>#}
+{#    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">#}
+{#    {% load static %}#}
+{#    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- 保留原样式 -->#}
+{#</head>#}
+{#<body>#}
+{#    <!-- 导航栏 -->#}
+{#    <nav class="navbar">#}
+{#        <div class="container">#}
+{#            <a href="{% url 'stories:index' %}" class="logo">故事会</a>#}
+{#            <div class="nav-links">#}
+{#                <a href="{% url 'stories:index' %}">首页</a>#}
+{#                <a href="{% url 'story_list' %}">故事列表</a>#}
+{#                {% if user.is_authenticated %}#}
+{#                    <a href="{% url 'stories:generate_story' %}">发布故事</a>#}
+{#                    <a href="{% url 'my_stories' %}">我的故事</a>#}
+{#                    <a href="{% url 'logout' %}">退出 ({{ user.username }})</a>#}
+{#                {% else %}#}
+{#                    <a href="{% url 'login' %}">登录</a>#}
+{#                    <a href="{% url 'register' %}">注册</a>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{#    </nav>#}
+{##}
+{#    <!-- 主内容 -->#}
+{#    <main class="container">#}
+{#        {% if messages %}#}
+{#            {% for message in messages %}#}
+{#                <div class="alert">{{ message }}</div>#}
+{#            {% endfor %}#}
+{#        {% endif %}#}
+{#        {% block content %}{% endblock %}#}
+{#    </main>#}
+{##}
+{#    <script src="{% static 'js/script.js' %}"></script>  <!-- 保留原JS -->#}
+{#    {% block extra_js %}{% endblock %}#}
+{#</body>#}
+{#</html>#}

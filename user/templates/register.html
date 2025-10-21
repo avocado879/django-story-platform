@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书的世界 - 注册</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 保持原有的CSS样式不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Georgia", "Times New Roman", "SimSun", serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f9f6f0 0%, #e8dcc5 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-container {
+            display: flex;
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(139, 90, 43, 0.3);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .book-page {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .left-page {
+            background: linear-gradient(135deg, #8b5a2b 0%, #6d4c41 100%);
+            color: #ffffff;
+            text-align: center;
+            border-right: 2px solid #6d4c41;
+        }
+
+        .left-page::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>');
+            opacity: 0.2;
+        }
+
+        .right-page {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(109, 76, 65, 0.4);
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            opacity: 0.9;
+            font-style: italic;
+            margin-bottom: 30px;
+        }
+
+        .book-decoration {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 15px 0;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #6d4c41;
+            font-size: 16px;
+            padding-left: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #8b5a2b;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f8f8f0;
+            box-shadow: inset 0 2px 4px rgba(109, 76, 65, 0.1);
+            color: #6d4c41;
+        }
+
+        .input-group input:focus {
+            border-color: #6d4c41;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(139, 90, 43, 0.2), inset 0 2px 4px rgba(109, 76, 65, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(135deg, #8b5a2b 0%, #6d4c41 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(139, 90, 43, 0.4);
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 2px rgba(109, 76, 65, 0.4);
+            border: 2px solid #6d4c41;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 90, 43, 0.5);
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 16px;
+            color: #6d4c41;
+        }
+
+        .switch-form a {
+            color: #8b5a2b;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+            background: rgba(139, 90, 43, 0.1);
+        }
+
+        .message {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            display: block;
+            animation: slideIn 0.5s ease-out;
+            font-weight: 500;
+        }
+
+        .error {
+            background: rgba(255, 235, 238, 0.9);
+            color: #d32f2f;
+            border: 2px solid #f44336;
+        }
+
+        .success {
+            background: rgba(232, 245, 233, 0.9);
+            color: #388e3c;
+            border: 2px solid #4caf50;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .book-container {
+                flex-direction: column;
+                height: auto;
+                max-width: 450px;
+            }
+
+            .left-page {
+                border-right: none;
+                border-bottom: 2px solid #6d4c41;
+                padding: 30px 20px;
+            }
+
+            .right-page {
+                padding: 30px 20px;
+            }
+
+            .welcome-title {
+                font-size: 32px;
+            }
+        }
+
+        .story-decoration {
+            position: absolute;
+            font-size: 24px;
+            color: #8b5a2b;
+            opacity: 0.7;
+            z-index: 1;
+        }
+
+        .decoration-1 {
+            top: 40px;
+            left: 30px;
+            transform: rotate(-15deg);
+        }
+
+        .decoration-2 {
+            bottom: 40px;
+            right: 30px;
+            transform: rotate(15deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="story-decoration decoration-1">
+        <i class="fas fa-book-open"></i>
+    </div>
+    <div class="story-decoration decoration-2">
+        <i class="fas fa-feather-alt"></i>
+    </div>
+
+    <div class="book-container">
+        <div class="book-page left-page">
+            <h1 class="welcome-title">欢迎来到书的世界</h1>
+            <p class="welcome-subtitle">开启你的阅读之旅</p>
+
+            <div class="book-decoration">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <p>加入我们，发现更多精彩</p>
+
+            <div class="book-decoration">
+                <i class="fas fa-heart"></i>
+            </div>
+            <p>记录你的阅读喜好</p>
+
+            <div class="book-decoration">
+                <i class="fas fa-share-alt"></i>
+            </div>
+            <p>与书友分享阅读体验</p>
+        </div>
+
+        <div class="book-page right-page">
+            <div class="form-container">
+                <h2 style="text-align: center; color: #6d4c41; margin-bottom: 30px;">用户注册</h2>
+
+                <!-- 显示Django返回的消息 -->
+                {% if msg %}
+                <div class="message error">{{ msg }}</div>
+                {% endif %}
+
+                <form method="POST" action="/user/register/">
+
+                    <div class="input-group">
+                        <label for="registerUsername"><i class="fas fa-user-circle"></i> 用户名</label>
+                        <input type="text" id="registerUsername" name="username" placeholder="请输入用户名" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="registerPassword"><i class="fas fa-key"></i> 密码</label>
+                        <input type="password" id="registerPassword" name="password" placeholder="请输入密码" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword"><i class="fas fa-check-circle"></i> 确认密码</label>
+                        <input type="password" id="confirmPassword" name="password2" placeholder="请再次输入密码" required>
+                    </div>
+
+                    <button type="submit" class="btn"><i class="fas fa-user-plus"></i> 注册</button>
+                    {% csrf_token %}
+                </form>
+
+                <div class="switch-form">
+                    已有账号？<a href="/user/login/">立即登录</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 前端验证密码一致性
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('两次输入的密码不一致，请重新输入');
+                return false;
+            }
+
+            if (password.length < 4) {
+                e.preventDefault();
+                alert('密码长度至少为4位');
+                return false;
+            }
+
+            return true;
+        });
+    </script>
+</body>
+</html>

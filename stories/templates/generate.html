@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}生成故事{% endblock %}
+
+{% block content %}
+<!-- 书香风格样式 -->
+<style>
+    body {
+        font-family: "Georgia", "Times New Roman", "SimSun", serif;
+        background-color: #f9f6f0;
+        margin: 0;
+        color: #3c2a21;
+    }
+
+    /* 容器样式 */
+    .container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 8px rgba(109, 76, 65, 0.1);
+    }
+
+    h1 {
+        text-align: center;
+        color: #6d4c41;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    h1::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 2px;
+        background-color: #8b5a2b;
+        margin: 8px auto 0;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #5a4638;
+    }
+
+    select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e0d8c8;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #fdfbfa;
+        color: #3c2a21;
+    }
+
+    /* 按钮配色贴合书香风格 */
+    button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-bottom: 20px;
+        transition: background-color 0.3s;
+        font-family: "Georgia", "Times New Roman", "SimSun", serif;
+    }
+
+    .submit-btn {
+        background-color: #8b5a2b;
+        color: #fff;
+    }
+
+    .submit-btn:hover {
+        background-color: #6d4c41;
+    }
+
+    .add-btn {
+        background-color:#526334;
+        color: #fff;
+        display: none;
+    }
+
+    .add-btn:hover {
+        background-color:#642525;
+    }
+
+    .history-btn {
+        background-color: #0d4359;
+        color: #fff;
+    }
+
+    .history-btn:hover {
+        background-color: #642525;
+    }
+
+    .result {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #e0d8c8;
+        border-radius: 4px;
+        min-height: 100px;
+        line-height: 1.8;
+    }
+
+    .success-message {
+        background-color: #f2ebe0;
+        color: #5a4638;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        text-align: center;
+        display: none;
+    }
+
+    .view-library {
+        color: #8b5a2b;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .error-message {
+        color: #a02b2b;
+        padding: 10px;
+        text-align: center;
+        background-color: #f8ecec;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+
+    .story-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #6d4c41;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    /* 用户信息样式 */
+    .user-info {
+        position: absolute;
+        top: -30px;
+        right: 0;
+        color: #6d4c41;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    /* 故事内容样式 */
+    .story-content {
+        color: #444;
+        font-size: 1.05rem;
+        line-height: 1.8;
+    }
+
+    .story-content p {
+        margin-bottom: 1rem;
+        text-align: justify;
+    }
+
+    /* 生成中提示动画 */
+    #storyResult .story-title:only-child {
+        color: #777;
+        font-size: 1.5rem;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 0.7; }
+        50% { opacity: 1; }
+        100% { opacity: 0.7; }
+    }
+</style>
+
+<div class="container">
+    <form class="story-form">
+        {% csrf_token %}
+        <h1>故事生成</h1>
+        <div class="form-group">
+            <label for="style">故事风格</label>
+            <div class="user-info" id="currentUserInfo">未登录</div>
+            <select id="style">
+                <option value="成语故事">成语故事</option>
+                <option value="童话故事">童话故事</option>
+                <option value="寓言故事">寓言故事</option>
+                <option value="睡前故事">睡前故事</option>
+                <option value="民间故事">民间故事</option>
+            </select>
+        </div>
+        <button type="submit" class="submit-btn" id="btn1">生成故事</button>
+        <button type="button" id="addStoryBtn" class="add-btn">添加到故事库</button>
+        <button type="button" id="viewHistoryBtn" class="history-btn">查看历史故事</button>
+    </form>
+    <div id="successMessage" class="success-message">
+        故事已成功添加到故事库！<a href="{% url 'stories:stories' %}" class="view-library">查看故事库</a>
+    </div>
+    <div id="storyResult" class="result"></div>
+</div>
+
+<!-- 引入jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+
+<script>
+    // 讯飞接口配置
+    const APP_ID = "4feabf23";
+    const API_KEY = "c98af365664d0627ef18efaa993dd86d";
+    const API_SECRET = "MjVlYjIzNzc5NWQzOTU0YzIxOGY3YTNm";
+    const HOST = "spark-api.xf-yun.com";
+    const PATH = "/v4.0/chat";
+
+    // 获取CSRF令牌的函数
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+    console.log('CSRF Token:', csrftoken); // 调试信息
+
+    let conversationHistory = [];
+    let currentWs = null;
+    let currentStory = null;
+    let currentUsername = '匿名用户';
+
+    $(function() {
+        // 检查登录状态
+        checkLoginStatus();
+
+        // 表单提交：生成故事
+        $('.story-form').on('submit', async function(e) {
+            e.preventDefault();
+            const style = $('#style').val();
+            const prompt = `请生成一个${style}，要求内容生动有趣，适合阅读。请先给出明确的标题，再给出故事内容。`;
+
+            if (!prompt) {
+                showError('请选择故事风格');
+                return;
+            }
+
+            // 加载状态初始化
+            showLoading();
+            clearError();
+            $('.submit-btn').prop('disabled', true);
+            $('#addStoryBtn, #successMessage').hide();
+
+            try {
+                await handleChat(prompt);
+            } catch (error) {
+                showError(`生成失败: ${error.message}`);
+                currentWs?.close();
+            } finally {
+                $('.submit-btn').prop('disabled', false);
+            }
+        });
+
+        // 添加到故事库
+        $('#addStoryBtn').on('click', function() {
+            if (currentStory) {
+                console.log('开始保存故事到数据库'); // 调试信息
+                saveStoryToDatabase(currentStory);
+            } else {
+                showError('没有可保存的故事内容');
+            }
+        });
+
+        // 跳转到故事库
+        $('#viewHistoryBtn').on('click', function() {
+            window.location.href = "{% url 'stories:stories' %}";
+        });
+    });
+
+    // 检查登录状态并获取用户名
+    function checkLoginStatus() {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        if (currentUser && currentUser.username) {
+            currentUsername = currentUser.username;
+            $('#currentUserInfo').text(`当前用户: ${currentUsername}`);
+        } else {
+            $('#currentUserInfo').text('未登录');
+        }
+    }
+
+    // 保存故事到数据库
+    function saveStoryToDatabase(story) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+    if (!currentUser || !currentUser.username) {
+        showError('请先登录后再保存故事');
+        return;
+    }
+
+    const title = extractTitle(story.content) || '新生成的故事';
+    const category = $('#style').val();
+    const content = formatStoryContent(story.content);
+    const readTime = calculateReadTime(story.content);
+    const imgId = Math.floor(Math.random() * 100) + 1;
+
+    console.log('准备发送的数据:', {
+        title: title,
+        category: category,
+        content_length: content.length,
+        readTime: readTime,
+        imgId: imgId,
+        username: currentUser.username
+    });
+
+    // 显示保存中状态
+    $('#addStoryBtn').prop('disabled', true).text('保存中...');
+
+    // 确保使用正确的CSRF token
+    $.ajax({
+        url: "{% url 'stories:save_story' %}",
+        type: "POST",
+        headers: {
+            "X-CSRFToken": csrftoken
+        },
+        data: {
+            title: title,
+            content: content,
+            category: category,
+            img_id: imgId,
+            read_time: readTime,
+            csrfmiddlewaretoken: csrftoken  // 也作为数据字段发送
+        },
+        success: function(response) {
+            console.log('服务器响应:', response);
+            if (response.success) {
+                $('#successMessage').show();
+                $('#addStoryBtn').hide();
+                setTimeout(() => {
+                    $('#successMessage').fadeOut();
+                }, 3000);
+            } else {
+                showError('保存失败: ' + response.error);
+                $('#addStoryBtn').prop('disabled', false).text('添加到故事库');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('保存故事失败:', error);
+            console.error('详细错误:', xhr.responseText);
+
+            let errorMsg = '保存失败，请重试';
+            if (xhr.status === 403) {
+                errorMsg = 'CSRF验证失败，请刷新页面重试';
+            } else if (xhr.status === 500) {
+                errorMsg = '服务器错误，请稍后重试';
+            }
+
+            showError(errorMsg);
+            $('#addStoryBtn').prop('disabled', false).text('添加到故事库');
+        }
+    });
+}
+
+    // 提取标题
+    function extractTitle(content) {
+        const firstLine = content.split('\n')[0]?.trim();
+        return firstLine && firstLine.length < 30 && !firstLine.includes('。') ? firstLine.replace(/#/g, '').trim() : '';
+    }
+
+    // 格式化故事内容
+    function formatStoryContent(content) {
+        // 将换行转换为段落，同时移除标题中的#号
+        const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
+        // 处理第一行（标题行）的#号
+        if (paragraphs.length > 0) {
+            paragraphs[0] = paragraphs[0].replace(/#/g, '').trim();
+        }
+        return paragraphs.map(p => `<p>${p}</p>`).join('');
+    }
+
+    // 计算阅读时间
+    function calculateReadTime(content) {
+        const wordCount = content.replace(/\s/g, '').length;
+        return Math.max(1, Math.round(wordCount / 200));
+    }
+
+    // WebSocket聊天逻辑
+    async function handleChat(prompt) {
+        return new Promise((resolve, reject) => {
+            const wsUrl = getAuthUrl();
+            currentWs = new WebSocket(wsUrl);
+            conversationHistory.push({ role: "user", content: prompt });
+
+            currentWs.onopen = () => {
+                const requestData = {
+                    header: { app_id: APP_ID, uid: "user_123" },
+                    parameter: { chat: { domain: "4.0Ultra", temperature: 0.7, max_tokens: 2048 } },
+                    payload: { message: { text: conversationHistory } }
+                };
+                currentWs.send(JSON.stringify(requestData));
+            };
+
+            let fullContent = '';
+            let isFirstChunk = true;
+            let titleDisplayed = false;
+
+            currentWs.onmessage = (event) => {
+                try {
+                    const response = JSON.parse(event.data);
+
+                    if (response.header.code !== 0) {
+                        reject(new Error(`API错误: ${response.header.message}`));
+                        currentWs.close();
+                        return;
+                    }
+
+                    const content = response.payload.choices.text[0].content;
+                    fullContent += content;
+
+                    if (isFirstChunk) {
+                        // 首次获取内容时清空结果区
+                        $('#storyResult').html('');
+                        isFirstChunk = false;
+                    }
+
+                    // 处理标题和内容的显示格式
+                    if (!titleDisplayed) {
+                        // 尝试提取标题（首次出现换行前的内容作为标题）
+                        if (fullContent.includes('\n')) {
+                            let [title, contentAfterTitle] = fullContent.split('\n', 2);
+                            // 移除标题中的#号
+                            title = title.replace(/#/g, '').trim();
+                            // 显示标题（已移除长横线）
+                            $('#storyResult').html(`
+                                <div class="story-title">${title}</div>
+                                <div class="story-content">${contentAfterTitle}</div>
+                            `);
+                            titleDisplayed = true;
+                            // 保存当前故事内容
+                            currentStory = { content: fullContent };
+                            // 显示添加按钮
+                            $('#addStoryBtn').show();
+                        } else {
+                            // 还未获取到完整标题，临时显示
+                            let tempTitle = fullContent.replace(/#/g, '').trim();
+                            $('#storyResult').html(`<div class="story-title">${tempTitle}</div>`);
+                        }
+                    } else {
+                        // 已有标题，只更新内容部分
+                        const currentContent = $('.story-content').html() || '';
+                        $('.story-content').html(currentContent + content);
+                        // 更新当前故事内容
+                        currentStory = { content: fullContent };
+                    }
+
+                    // 如果是最后一块内容，结束处理
+                    if (response.header.status === 2) {
+                        currentWs.close();
+                        resolve(fullContent);
+                    }
+                } catch (e) {
+                    reject(new Error("响应解析失败"));
+                }
+            };
+
+            currentWs.onerror = () => reject(new Error("连接异常，请检查网络"));
+
+            currentWs.onclose = (event) => {
+                if (event.code !== 1000) {
+                    reject(new Error(`连接意外关闭: ${event.reason}`));
+                }
+            };
+        });
+    }
+
+    // 生成WebSocket授权URL
+    function getAuthUrl() {
+        const date = new Date().toGMTString();
+        const signatureOrigin = `host: ${HOST}\ndate: ${date}\nGET ${PATH} HTTP/1.1`;
+        const signature = CryptoJS.enc.Base64.stringify(
+            CryptoJS.HmacSHA256(signatureOrigin, API_SECRET)
+        );
+        const authOrigin = `api_key="${API_KEY}", algorithm="hmac-sha256", headers="host date request-line", signature="${signature}"`;
+        const authorization = btoa(authOrigin);
+        return `wss://${HOST}${PATH}?authorization=${authorization}&date=${date}&host=${HOST}`;
+    }
+
+    // 辅助函数
+    function showLoading() {
+        $('#storyResult').html('<div class="story-title">故事生成中...</div>');
+    }
+
+    function showError(msg) {
+        $('#storyResult').html(`<div class="error-message">${msg}</div>`);
+    }
+
+    function clearError() {
+        $('.error-message').remove();
+    }
+</script>
+{% endblock %}
