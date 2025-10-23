@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>故事详情 - {{ story.title }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Georgia", "Times New Roman", "SimSun", serif;
+            color: #6d4c41;
+            background-color: #f9f6f0;
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        nav {
+            background: linear-gradient(135deg, #f5f0e6 0%, #e8dcc5 100%);
+            color: #6d4c41;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 6px rgba(109, 76, 65, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #6d4c41;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #6d4c41;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            background: rgba(139, 90, 43, 0.05);
+            color: #8b5a2b;
+        }
+
+        /* 主内容 */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .story-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .story-header {
+            padding: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .story-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .story-category {
+            background-color: #8b5a2b10;
+            color: #8b5a2b;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .story-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #6d4c41;
+        }
+
+        .story-content {
+            padding: 2rem;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        .story-content p {
+            margin-bottom: 1.5rem;
+            text-indent: 2em;
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1rem 2rem;
+            border-top: 1px solid #eee;
+            background-color: #f9fafb;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .action-btn:hover {
+            background-color: #eee;
+            color: #8b5a2b;
+        }
+
+        .action-btn.liked {
+            color: #b71c1c;
+        }
+
+        .action-btn.saved {
+            color: #f57c00;
+        }
+
+        .delete-btn {
+            color: #b71c1c;
+            margin-left: auto;
+        }
+
+        .delete-btn:hover {
+            background-color: #ffebee;
+        }
+
+        /* 返回按钮 */
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #8b5a2b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 评论区域 */
+        .comments-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comments-title {
+            font-size: 1.5rem;
+            color: #6d4c41;
+        }
+
+        .comments-count {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .comment-form {
+            margin-bottom: 2rem;
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #8b5a2b;
+            box-shadow: 0 0 0 2px rgba(139, 90, 43, 0.2);
+        }
+
+        .comment-submit {
+            background-color: #8b5a2b;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .comment-submit:hover {
+            background-color: #6d4c41;
+        }
+
+        .comments-list {
+            margin-top: 2rem;
+        }
+
+        .comment {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment:hover {
+            background-color: #f9fafb;
+        }
+
+        /* 评论头像样式 */
+        .comment-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-avatar {
+            flex-shrink: 0;
+        }
+
+        .avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #f0f0f0;
+            transition: border-color 0.3s;
+        }
+
+        .comment:hover .avatar-img {
+            border-color: #8b5a2b;
+        }
+
+        .comment-author-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #6d4c41;
+            font-size: 0.95rem;
+        }
+
+        .comment-date {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .comment-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            margin-left: 52px; /* 头像宽度 + 间距 */
+        }
+
+        .comment-actions {
+            display: flex;
+            justify-content: flex-start;
+            gap: 1rem;
+            margin-left: 52px;
+        }
+
+        .comment-delete-btn {
+            background: none;
+            border: none;
+            color: #b71c1c;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            transition: background-color 0.3s;
+            opacity: 0.7;
+        }
+
+        .comment:hover .comment-delete-btn {
+            opacity: 1;
+        }
+
+        .comment-delete-btn:hover {
+            background-color: #ffebee;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #888;
+            padding: 2rem;
+        }
+
+        /* 加载中的头像样式 */
+        .avatar-loading {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        /* 评论动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .comment {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .story-title {
+                font-size: 1.5rem;
+            }
+
+            .story-actions {
+                flex-wrap: wrap;
+            }
+
+            .comments-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .comment-content {
+                margin-left: 0;
+            }
+
+            .comment-actions {
+                margin-left: 0;
+            }
+        }
+
+        /* 回复相关样式 */
+        .replies-list {
+            margin-left: 2rem;
+            border-left: 2px solid #eee;
+            padding-left: 1rem;
+            margin-top: 1rem;
+        }
+
+        .comment.reply {
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            padding: 1rem;
+        }
+
+        .reply .avatar-img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .reply .comment-content {
+            margin-left: 44px; /* 小头像宽度 + 间距 */
+        }
+
+        .reply .comment-actions {
+            margin-left: 44px;
+        }
+
+        .reply-to {
+            color: #8b5a2b;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .reply-form {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            margin-left: 52px;
+        }
+
+        .reply-input {
+            width: 100%;
+            min-height: 60px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 0.5rem;
+        }
+
+        .reply-input:focus {
+            outline: none;
+            border-color: #8b5a2b;
+        }
+
+        .reply-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .reply-submit, .reply-cancel {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .reply-submit {
+            background-color: #8b5a2b;
+            color: white;
+        }
+
+        .reply-submit:hover {
+            background-color: #6d4c41;
+        }
+
+        .reply-cancel {
+            background-color: #eee;
+            color: #666;
+        }
+
+        .reply-cancel:hover {
+            background-color: #ddd;
+        }
+
+        .comment-reply-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            transition: all 0.3s;
+            opacity: 0.7;
+        }
+
+        .comment:hover .comment-reply-btn {
+            opacity: 1;
+        }
+
+        .comment-reply-btn:hover {
+            background-color: #f0f0f0;
+            color: #8b5a2b;
+        }
+
+        /* 评论点赞按钮样式 */
+        .comment-like-btn {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 0.3rem 0.5rem;
+            border-radius: 3px;
+            transition: all 0.3s;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .comment:hover .comment-like-btn {
+            opacity: 1;
+        }
+
+        .comment-like-btn:hover {
+            background-color: #ffebee;
+            color: #b71c1c;
+        }
+
+        .comment-like-btn.liked {
+            color: #b71c1c;
+        }
+
+        .comment-like-btn.liked:hover {
+            background-color: #ffcdd2;
+        }
+
+        .comment-like-count {
+            font-size: 0.8rem;
+            min-width: 1.2rem;
+            text-align: center;
+        }
+
+        /* 分享按钮样式 */
+        .share-btn:hover {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        /* 分享面板样式 */
+        .share-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .share-panel h3 {
+            margin-bottom: 1rem;
+            color: #6d4c41;
+            text-align: center;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .share-option:hover {
+            background-color: #f9fafb;
+            border-color: #8b5a2b;
+        }
+
+        .share-option i {
+            font-size: 1.5rem;
+        }
+
+        .share-option.wechat i { color: #07c160; }
+        .share-option.weibo i { color: #e6162d; }
+        .share-option.qq i { color: #12b7f5; }
+        .share-option.link i { color: #8b5a2b; }
+        .share-option.twitter i { color: #1da1f2; }
+        .share-option.facebook i { color: #1877f2; }
+
+        .share-url {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .share-url input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .share-url button {
+            padding: 0.5rem 1rem;
+            background-color: #8b5a2b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .share-url button:hover {
+            background-color: #6d4c41;
+        }
+
+        .share-close {
+            display: block;
+            width: 100%;
+            padding: 0.8rem;
+            background-color: #f5f5f5;
+            color: #666;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .share-close:hover {
+            background-color: #e0e0e0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* 通知样式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.info {
+            background: #2196f3;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="nav-container">
+            <a href="{% url 'stories:index' %}" class="logo">
+                <i class="fa fa-book"></i>
+                <span>奇幻故事天地</span>
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'stories:index' %}">首页</a>
+                <a href="{% url 'stories:generate_story' %}">生成故事</a>
+                <a href="{% url 'stories:stories' %}" class="active">故事库</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容 -->
+    <div class="container">
+        <a href="{% url 'stories:stories' %}" class="back-link">
+            <i class="fa fa-arrow-left"></i> 返回故事库
+        </a>
+
+        <div class="story-card">
+            <div class="story-header">
+                <div class="story-meta">
+                    <span class="story-category">{{ story.category.name }}</span>
+                    <span>{{ story.created_at|date:"Y-m-d" }}</span>
+                </div>
+                <h1 class="story-title">{{ story.title }}</h1>
+            </div>
+
+            <div class="story-content">
+                {{ story.content|safe }}
+            </div>
+
+            <div class="story-actions">
+                <button class="action-btn {% if user_liked %}liked{% endif %}" id="likeBtn">
+                    <i class="fa fa-heart"></i>
+                    <span id="likeCount">{{ story.likes }}</span>
+                </button>
+                <button class="action-btn {% if user_saved %}saved{% endif %}" id="saveBtn">
+                    <i class="fa fa-bookmark"></i>
+                    <span>{% if user_saved %}已收藏{% else %}收藏{% endif %}</span>
+                </button>
+
+                <!-- 添加分享按钮 -->
+                <button class="action-btn share-btn" id="shareBtn">
+                    <i class="fa fa-share-alt"></i>
+                    <span>分享</span>
+                </button>
+
+                {% if user.is_authenticated and story.author == user %}
+                <button class="action-btn delete-btn" id="storyDeleteBtn">
+                    <i class="fa fa-trash"></i>
+                    <span>删除</span>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 评论区域 -->
+        <div class="comments-section">
+            <div class="comments-header">
+                <h2 class="comments-title">评论</h2>
+                <span class="comments-count" id="commentsCount">{{ comments|length }} 条评论</span>
+            </div>
+
+            {% if user.is_authenticated %}
+            <div class="comment-form">
+                <textarea class="comment-input" id="commentInput" placeholder="写下你的评论..."></textarea>
+                <button class="comment-submit" id="commentSubmit">发布评论</button>
+            </div>
+            {% else %}
+            <div class="comment-form">
+                <p style="color: #888; text-align: center; padding: 1rem;">
+                    请<a href="{% url 'user:login' %}" style="color: #8b5a2b;">登录</a>后发表评论
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="comments-list" id="commentsList">
+                {% for comment in comments %}
+                <div class="comment" data-comment-id="{{ comment.id }}">
+                    <div class="comment-header">
+                        <div class="comment-avatar">
+                            <img src="{{ comment.author.get_avatar_url }}" alt="{{ comment.author.username }}" class="avatar-img" onerror="handleAvatarError(this)">
+                        </div>
+                        <div class="comment-author-info">
+                            <span class="comment-author">{{ comment.author.username }}</span>
+                            <span class="comment-date">{{ comment.created_at|date:"Y-m-d H:i" }}</span>
+                        </div>
+                    </div>
+                    <div class="comment-content">{{ comment.content }}</div>
+                    <div class="comment-actions">
+                        {% if user.is_authenticated %}
+                        <!-- 添加评论点赞按钮 -->
+                        <button class="comment-like-btn {% if comment.user_liked %}liked{% endif %}" data-comment-id="{{ comment.id }}">
+                            <i class="fa fa-heart"></i>
+                            <span class="comment-like-count">{{ comment.likes|default:0 }}</span>
+                        </button>
+                        <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
+                            <i class="fa fa-reply"></i> 回复
+                        </button>
+                        {% endif %}
+                        {% if user.is_authenticated and comment.author == user %}
+                        <button class="comment-delete-btn" data-comment-id="{{ comment.id }}">
+                            <i class="fa fa-trash"></i> 删除
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- 回复表单 -->
+                    {% if user.is_authenticated %}
+                    <div class="reply-form" id="replyForm-{{ comment.id }}" style="display: none;">
+                        <textarea class="reply-input" placeholder="写下你的回复..."></textarea>
+                        <div class="reply-actions">
+                            <button class="reply-submit" data-comment-id="{{ comment.id }}">回复</button>
+                            <button class="reply-cancel">取消</button>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 回复列表 -->
+                    <div class="replies-list">
+                        {% for reply in comment.replies.all %}
+                        <div class="comment reply" data-comment-id="{{ reply.id }}">
+                            <div class="comment-header">
+                                <div class="comment-avatar">
+                                    <img src="{{ reply.author.get_avatar_url }}" alt="{{ reply.author.username }}" class="avatar-img" onerror="handleAvatarError(this)">
+                                </div>
+                                <div class="comment-author-info">
+                                    <span class="comment-author">{{ reply.author.username }}</span>
+                                    <span class="comment-date">{{ reply.created_at|date:"Y-m-d H:i" }}</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                <span class="reply-to">@{{ reply.parent.author.username }}</span>
+                                {{ reply.content }}
+                            </div>
+                            <div class="comment-actions">
+                                {% if user.is_authenticated %}
+                                <!-- 添加回复点赞按钮 -->
+                                <button class="comment-like-btn {% if reply.user_liked %}liked{% endif %}" data-comment-id="{{ reply.id }}">
+                                    <i class="fa fa-heart"></i>
+                                    <span class="comment-like-count">{{ reply.likes|default:0 }}</span>
+                                </button>
+                                <button class="comment-reply-btn" data-comment-id="{{ comment.id }}">
+                                    <i class="fa fa-reply"></i> 回复
+                                </button>
+                                {% endif %}
+                                {% if user.is_authenticated and reply.author == user %}
+                                <button class="comment-delete-btn" data-comment-id="{{ reply.id }}">
+                                    <i class="fa fa-trash"></i> 删除
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-comments" id="noComments">
+                    <i class="fa fa-comments" style="font-size: 2rem; margin-bottom: 1rem; color: #ddd;"></i>
+                    <p>还没有评论，快来发表第一条评论吧！</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // 全局变量存储当前故事ID
+    const currentStoryId = {{ story.id }};
+    const csrfToken = '{{ csrf_token }}';
+    const currentUser = '{{ user.username }}';
+    let likeUpdateInterval;
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+        // 绑定点赞事件
+        const likeBtn = document.getElementById('likeBtn');
+        if (likeBtn) {
+            likeBtn.addEventListener('click', toggleLike);
+        }
+
+        // 绑定收藏事件
+        const saveBtn = document.getElementById('saveBtn');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', toggleSave);
+        }
+
+        // 绑定故事删除事件
+        const deleteBtn = document.getElementById('storyDeleteBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', deleteStory);
+        }
+
+        // 绑定评论提交事件
+        const commentSubmit = document.getElementById('commentSubmit');
+        if (commentSubmit) {
+            commentSubmit.addEventListener('click', handleCommentSubmit);
+        }
+
+        // 绑定评论列表点击事件（事件委托）
+        const commentsList = document.getElementById('commentsList');
+        if (commentsList) {
+            commentsList.addEventListener('click', handleCommentAction);
+        }
+
+        // 绑定回车键提交评论
+        const commentInput = document.getElementById('commentInput');
+        if (commentInput) {
+            commentInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    handleCommentSubmit();
+                }
+            });
+        }
+
+        // 绑定分享按钮事件
+        const shareBtn = document.getElementById('shareBtn');
+        if (shareBtn) {
+            shareBtn.addEventListener('click', showSharePanel);
+        }
+
+        // 初始化回复功能
+        initReplyFunctions();
+
+        // 启动实时点赞数更新
+        startLikeUpdates();
+
+        // 为现有评论的头像添加错误处理
+        document.querySelectorAll('.avatar-img').forEach(img => {
+            img.onerror = function() {
+                handleAvatarError(this);
+            };
+        });
+    });
+
+    // 头像加载错误处理
+    function handleAvatarError(img) {
+        // 头像加载失败时使用默认头像
+        img.src = "http://storyai2.oss-cn-hangzhou.aliyuncs.com/static/img/book.jpg";
+        img.onerror = null; // 防止循环错误
+    }
+
+    // 预加载头像
+    function preloadAvatar(url) {
+        const img = new Image();
+        img.src = url;
+    }
+
+    // 启动实时点赞数更新
+    function startLikeUpdates() {
+        // 每30秒更新一次点赞数
+        likeUpdateInterval = setInterval(updateLikeCount, 30000);
+
+        // 页面可见性变化时控制更新
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(likeUpdateInterval);
+            } else {
+                likeUpdateInterval = setInterval(updateLikeCount, 30000);
+            }
+        });
+    }
+
+    // 更新点赞数（不改变用户点赞状态）
+    function updateLikeCount() {
+        fetch(`/stories/story/${currentStoryId}/get_likes/`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const likeCountElement = document.getElementById('likeCount');
+                const currentCount = parseInt(likeCountElement.textContent);
+
+                // 只有当数字变化时才更新，避免不必要的闪烁
+                if (currentCount !== data.likes_count) {
+                    likeCountElement.textContent = data.likes_count;
+
+                    // 添加数字变化动画
+                    animateNumberChange(likeCountElement, currentCount, data.likes_count);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('更新点赞数失败:', error);
+        });
+    }
+
+    // 数字变化动画
+    function animateNumberChange(element, oldValue, newValue) {
+        element.style.transform = 'scale(1.2)';
+        element.style.color = '#b71c1c';
+        element.style.transition = 'all 0.3s ease';
+
+        setTimeout(() => {
+            element.style.transform = 'scale(1)';
+            element.style.color = '';
+        }, 300);
+    }
+
+    // 切换点赞状态
+    function toggleLike() {
+        const likeBtn = this;
+        const likeCountElement = document.getElementById('likeCount');
+        const currentCount = parseInt(likeCountElement.textContent);
+
+        // 立即更新UI，提供即时反馈
+        if (likeBtn.classList.contains('liked')) {
+            likeBtn.classList.remove('liked');
+            likeCountElement.textContent = currentCount - 1;
+        } else {
+            likeBtn.classList.add('liked');
+            likeCountElement.textContent = currentCount + 1;
+        }
+
+        // 添加点击动画
+        likeBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            likeBtn.style.transform = 'scale(1)';
+        }, 150);
+
+        // 发送请求到服务器
+        fetch(`/stories/story/${currentStoryId}/like/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success !== false) {
+                // 确保UI状态与服务器一致
+                if (data.liked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
+                likeCountElement.textContent = data.likes_count;
+
+                // 触发数字变化动画
+                animateNumberChange(likeCountElement, currentCount, data.likes_count);
+
+                // 立即更新一次点赞数，确保数据同步
+                setTimeout(updateLikeCount, 1000);
+            } else {
+                showNotification(data.message || '操作失败', 'error');
+                // 恢复原始状态
+                likeBtn.classList.toggle('liked');
+                likeCountElement.textContent = currentCount;
+            }
+        })
+        .catch(error => {
+            console.error('点赞失败:', error);
+            showNotification('操作失败，请重试', 'error');
+            // 恢复原始状态
+            likeBtn.classList.toggle('liked');
+            likeCountElement.textContent = currentCount;
+        });
+    }
+
+    // 切换收藏状态
+    function toggleSave() {
+        const saveBtn = this;
+
+        // 立即更新UI
+        if (saveBtn.classList.contains('saved')) {
+            saveBtn.classList.remove('saved');
+            saveBtn.innerHTML = '<i class="fa fa-bookmark"></i><span>收藏</span>';
+        } else {
+            saveBtn.classList.add('saved');
+            saveBtn.innerHTML = '<i class="fa fa-bookmark"></i><span>已收藏</span>';
+        }
+
+        // 添加点击动画
+        saveBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            saveBtn.style.transform = 'scale(1)';
+        }, 150);
+
+        fetch(`/stories/story/${currentStoryId}/save/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.saved !== undefined) {
+                // 确保UI状态与服务器一致
+                if (data.saved) {
+                    saveBtn.classList.add('saved');
+                    saveBtn.innerHTML = '<i class="fa fa-bookmark"></i><span>已收藏</span>';
+                } else {
+                    saveBtn.classList.remove('saved');
+                    saveBtn.innerHTML = '<i class="fa fa-bookmark"></i><span>收藏</span>';
+                }
+            } else {
+                showNotification(data.message || '操作失败', 'error');
+                // 恢复原始状态
+                saveBtn.classList.toggle('saved');
+                saveBtn.innerHTML = saveBtn.classList.contains('saved') ?
+                    '<i class="fa fa-bookmark"></i><span>已收藏</span>' :
+                    '<i class="fa fa-bookmark"></i><span>收藏</span>';
+            }
+        })
+        .catch(error => {
+            console.error('收藏失败:', error);
+            showNotification('操作失败，请重试', 'error');
+            // 恢复原始状态
+            saveBtn.classList.toggle('saved');
+            saveBtn.innerHTML = saveBtn.classList.contains('saved') ?
+                '<i class="fa fa-bookmark"></i><span>已收藏</span>' :
+                '<i class="fa fa-bookmark"></i><span>收藏</span>';
+        });
+    }
+
+    // 删除故事
+    function deleteStory() {
+        if (confirm('确定要删除这个故事吗？此操作不可恢复。')) {
+            fetch(`/stories/story/${currentStoryId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 显示成功消息
+                    showNotification('故事删除成功', 'success');
+                    // 延迟跳转让用户看到消息
+                    setTimeout(() => {
+                        window.location.href = "{% url 'stories:stories' %}";
+                    }, 1500);
+                } else {
+                    showNotification(data.message || '删除失败', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('删除失败:', error);
+                showNotification('删除失败，请重试', 'error');
+            });
+        }
+    }
+
+    // 显示通知
+    function showNotification(message, type = 'info') {
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button class="notification-close">&times;</button>
+        `;
+
+        // 添加到页面
+        document.body.appendChild(notification);
+
+        // 绑定关闭事件
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            notification.remove();
+        });
+
+        // 自动消失
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    // 处理评论提交
+    function handleCommentSubmit() {
+        const commentInput = document.getElementById('commentInput');
+        const content = commentInput.value.trim();
+
+        if (!content) {
+            showNotification('请输入评论内容', 'error');
+            return;
+        }
+
+        const submitBtn = document.getElementById('commentSubmit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '发布中...';
+
+        fetch(`/stories/story/${currentStoryId}/comment/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                content: content,
+                parent_id: null
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                commentInput.value = '';
+                addCommentToDOM(data.comment);
+                updateCommentsCount(1);
+                showNotification('评论发布成功', 'success');
+            } else {
+                showNotification(data.message || '评论失败', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('评论失败:', error);
+            showNotification('评论失败，请重试', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '发布评论';
+        });
+    }
+
+    // 添加评论到DOM
+    function addCommentToDOM(commentData) {
+        const commentsList = document.getElementById('commentsList');
+        const noComments = document.getElementById('noComments');
+
+        if (noComments) {
+            noComments.remove();
+        }
+
+        const commentElement = document.createElement('div');
+        commentElement.className = 'comment';
+        commentElement.setAttribute('data-comment-id', commentData.id);
+        commentElement.innerHTML = `
+            <div class="comment-header">
+                <div class="comment-avatar">
+                    <img src="${commentData.author_avatar}" alt="${commentData.author}" class="avatar-img" onerror="handleAvatarError(this)">
+                </div>
+                <div class="comment-author-info">
+                    <span class="comment-author">${commentData.author}</span>
+                    <span class="comment-date">${commentData.created_at}</span>
+                </div>
+            </div>
+            <div class="comment-content">${commentData.content}</div>
+            <div class="comment-actions">
+                ${currentUser ? `
+                <button class="comment-like-btn" data-comment-id="${commentData.id}">
+                    <i class="fa fa-heart"></i>
+                    <span class="comment-like-count">${commentData.likes || 0}</span>
+                </button>
+                <button class="comment-reply-btn" data-comment-id="${commentData.id}">
+                    <i class="fa fa-reply"></i> 回复
+                </button>
+                ` : ''}
+                ${commentData.is_author ? `
+                <button class="comment-delete-btn" data-comment-id="${commentData.id}">
+                    <i class="fa fa-trash"></i> 删除
+                </button>
+                ` : ''}
+            </div>
+            ${currentUser ? `
+            <div class="reply-form" id="replyForm-${commentData.id}" style="display: none;">
+                <textarea class="reply-input" placeholder="写下你的回复..."></textarea>
+                <div class="reply-actions">
+                    <button class="reply-submit" data-comment-id="${commentData.id}">回复</button>
+                    <button class="reply-cancel">取消</button>
+                </div>
+            </div>
+            ` : ''}
+            <div class="replies-list"></div>
+        `;
+
+        if (commentsList.children.length > 0) {
+            commentsList.insertBefore(commentElement, commentsList.firstChild);
+        } else {
+            commentsList.appendChild(commentElement);
+        }
+
+        initReplyFunctions();
+        animateElement(commentElement);
+
+        // 预加载头像
+        preloadAvatar(commentData.author_avatar);
+    }
+
+    // 更新评论计数
+    function updateCommentsCount(change) {
+        const commentsCount = document.getElementById('commentsCount');
+        if (commentsCount) {
+            const currentCount = parseInt(commentsCount.textContent) || 0;
+            const newCount = currentCount + change;
+            commentsCount.textContent = `${newCount} 条评论`;
+
+            // 添加计数变化动画
+            animateNumberChange(commentsCount, currentCount, newCount);
+        }
+    }
+
+    // 处理评论相关操作
+    function handleCommentAction(event) {
+        // 处理删除评论
+        if (event.target.closest('.comment-delete-btn')) {
+            const deleteBtn = event.target.closest('.comment-delete-btn');
+            const commentId = deleteBtn.getAttribute('data-comment-id');
+            const commentElement = deleteBtn.closest('.comment');
+
+            if (commentId && confirm('确定要删除这条评论吗？')) {
+                animateElementOut(commentElement, () => {
+                    fetch(`/stories/comment/${commentId}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': csrfToken
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            commentElement.remove();
+                            updateCommentsCount(-1);
+                            checkEmptyComments();
+                            showNotification('评论删除成功', 'success');
+                        } else {
+                            showNotification(data.message || '删除失败', 'error');
+                            animateElementIn(commentElement);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('删除评论失败:', error);
+                        showNotification('删除失败，请重试', 'error');
+                        animateElementIn(commentElement);
+                    });
+                });
+            }
+        }
+
+        // 处理回复按钮点击（事件委托）
+        if (event.target.closest('.comment-reply-btn')) {
+            const replyBtn = event.target.closest('.comment-reply-btn');
+            const commentId = replyBtn.getAttribute('data-comment-id');
+            const replyForm = document.getElementById(`replyForm-${commentId}`);
+
+            document.querySelectorAll('.reply-form').forEach(form => {
+                if (form.id !== `replyForm-${commentId}`) {
+                    form.style.display = 'none';
+                }
+            });
+
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+                replyForm.querySelector('.reply-input').focus();
+            } else {
+                replyForm.style.display = 'none';
+            }
+        }
+
+        // 处理评论点赞点击（事件委托）
+        if (event.target.closest('.comment-like-btn')) {
+            const likeBtn = event.target.closest('.comment-like-btn');
+            const commentId = likeBtn.getAttribute('data-comment-id');
+            toggleCommentLike(commentId, likeBtn);
+        }
+    }
+
+    // 切换评论点赞状态
+    function toggleCommentLike(commentId, likeBtn) {
+        const likeCountElement = likeBtn.querySelector('.comment-like-count');
+        const currentCount = parseInt(likeCountElement.textContent) || 0;
+
+        // 立即更新UI
+        if (likeBtn.classList.contains('liked')) {
+            likeBtn.classList.remove('liked');
+            likeCountElement.textContent = currentCount - 1;
+        } else {
+            likeBtn.classList.add('liked');
+            likeCountElement.textContent = currentCount + 1;
+        }
+
+        // 添加点击动画
+        likeBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            likeBtn.style.transform = 'scale(1)';
+        }, 150);
+
+        // 发送请求到服务器
+        fetch(`/stories/comment/${commentId}/like/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success !== false) {
+                // 确保UI状态与服务器一致
+                if (data.liked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
+                likeCountElement.textContent = data.likes_count;
+
+                // 添加数字变化动画
+                animateNumberChange(likeCountElement, currentCount, data.likes_count);
+            } else {
+                showNotification(data.message || '操作失败', 'error');
+                // 恢复原始状态
+                likeBtn.classList.toggle('liked');
+                likeCountElement.textContent = currentCount;
+            }
+        })
+        .catch(error => {
+            console.error('评论点赞失败:', error);
+            showNotification('操作失败，请重试', 'error');
+            // 恢复原始状态
+            likeBtn.classList.toggle('liked');
+            likeCountElement.textContent = currentCount;
+        });
+    }
+
+    // 初始化回复功能
+    function initReplyFunctions() {
+        // 绑定回复取消按钮
+        document.querySelectorAll('.reply-cancel').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const replyForm = this.closest('.reply-form');
+                replyForm.style.display = 'none';
+                replyForm.querySelector('.reply-input').value = '';
+            });
+        });
+
+        // 绑定回复提交按钮
+        document.querySelectorAll('.reply-submit').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const commentId = this.getAttribute('data-comment-id');
+                handleReplySubmit(commentId);
+            });
+        });
+    }
+
+    // 处理回复提交
+    function handleReplySubmit(parentCommentId) {
+        const replyForm = document.getElementById(`replyForm-${parentCommentId}`);
+        const replyInput = replyForm.querySelector('.reply-input');
+        const content = replyInput.value.trim();
+
+        if (!content) {
+            showNotification('请输入回复内容', 'error');
+            return;
+        }
+
+        const submitBtn = replyForm.querySelector('.reply-submit');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '回复中...';
+
+        fetch(`/stories/story/${currentStoryId}/comment/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                content: content,
+                parent_id: parentCommentId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                replyInput.value = '';
+                replyForm.style.display = 'none';
+                addReplyToDOM(parentCommentId, data.comment);
+                updateCommentsCount(1);
+                showNotification('回复发布成功', 'success');
+            } else {
+                showNotification(data.message || '回复失败', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('回复失败:', error);
+            showNotification('回复失败，请重试', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '回复';
+        });
+    }
+
+    // 添加回复到DOM
+    function addReplyToDOM(parentCommentId, replyData) {
+        const parentComment = document.querySelector(`.comment[data-comment-id="${parentCommentId}"]`);
+        let repliesList = parentComment.querySelector('.replies-list');
+
+        if (!repliesList) {
+            repliesList = document.createElement('div');
+            repliesList.className = 'replies-list';
+            parentComment.appendChild(repliesList);
+        }
+
+        const replyElement = document.createElement('div');
+        replyElement.className = 'comment reply';
+        replyElement.setAttribute('data-comment-id', replyData.id);
+        replyElement.innerHTML = `
+            <div class="comment-header">
+                <div class="comment-avatar">
+                    <img src="${replyData.author_avatar}" alt="${replyData.author}" class="avatar-img" onerror="handleAvatarError(this)">
+                </div>
+                <div class="comment-author-info">
+                    <span class="comment-author">${replyData.author}</span>
+                    <span class="comment-date">${replyData.created_at}</span>
+                </div>
+            </div>
+            <div class="comment-content">
+                <span class="reply-to">@${document.querySelector(`.comment[data-comment-id="${parentCommentId}"] .comment-author`).textContent}</span>
+                ${replyData.content}
+            </div>
+            <div class="comment-actions">
+                ${currentUser ? `
+                <button class="comment-like-btn" data-comment-id="${replyData.id}">
+                    <i class="fa fa-heart"></i>
+                    <span class="comment-like-count">${replyData.likes || 0}</span>
+                </button>
+                <button class="comment-reply-btn" data-comment-id="${parentCommentId}">
+                    <i class="fa fa-reply"></i> 回复
+                </button>
+                ` : ''}
+                ${replyData.is_author ? `
+                <button class="comment-delete-btn" data-comment-id="${replyData.id}">
+                    <i class="fa fa-trash"></i> 删除
+                </button>
+                ` : ''}
+            </div>
+        `;
+
+        repliesList.appendChild(replyElement);
+        initReplyFunctions();
+        animateElement(replyElement);
+
+        // 预加载头像
+        preloadAvatar(replyData.author_avatar);
+    }
+
+    // 显示分享面板
+    function showSharePanel() {
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+
+        // 创建分享面板
+        const sharePanel = document.createElement('div');
+        sharePanel.className = 'share-panel';
+        sharePanel.innerHTML = `
+            <h3>分享这个故事</h3>
+            <div class="share-options">
+                <button class="share-option wechat" onclick="shareToWechat()">
+                    <i class="fa fa-wechat"></i>
+                    <span>微信</span>
+                </button>
+                <button class="share-option weibo" onclick="shareToWeibo()">
+                    <i class="fa fa-weibo"></i>
+                    <span>微博</span>
+                </button>
+                <button class="share-option qq" onclick="shareToQQ()">
+                    <i class="fa fa-qq"></i>
+                    <span>QQ</span>
+                </button>
+                <button class="share-option link" onclick="copyLink()">
+                    <i class="fa fa-link"></i>
+                    <span>复制链接</span>
+                </button>
+                <button class="share-option twitter" onclick="shareToTwitter()">
+                    <i class="fa fa-twitter"></i>
+                    <span>Twitter</span>
+                </button>
+                <button class="share-option facebook" onclick="shareToFacebook()">
+                    <i class="fa fa-facebook"></i>
+                    <span>Facebook</span>
+                </button>
+            </div>
+            <div class="share-url">
+                <input type="text" value="${window.location.href}" readonly id="shareUrl">
+                <button onclick="copyLink()">复制</button>
+            </div>
+            <button class="share-close" onclick="closeSharePanel()">关闭</button>
+        `;
+
+        // 添加到页面
+        document.body.appendChild(overlay);
+        document.body.appendChild(sharePanel);
+
+        // 点击遮罩层关闭
+        overlay.addEventListener('click', closeSharePanel);
+    }
+
+    // 关闭分享面板
+    function closeSharePanel() {
+        const overlay = document.querySelector('.overlay');
+        const sharePanel = document.querySelector('.share-panel');
+
+        if (overlay) overlay.remove();
+        if (sharePanel) sharePanel.remove();
+    }
+
+    // 分享到微信
+    function shareToWechat() {
+        showNotification('请使用微信扫描二维码分享', 'info');
+        // 实际项目中可以生成二维码
+        closeSharePanel();
+    }
+
+    // 分享到微博
+    function shareToWeibo() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        window.open(`http://service.weibo.com/share/share.php?url=${url}&title=${title}`, '_blank');
+        closeSharePanel();
+    }
+
+    // 分享到QQ
+    function shareToQQ() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        window.open(`https://connect.qq.com/widget/shareqq/index.html?url=${url}&title=${title}`, '_blank');
+        closeSharePanel();
+    }
+
+    // 分享到Twitter
+    function shareToTwitter() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(document.title);
+        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+        closeSharePanel();
+    }
+
+    // 分享到Facebook
+    function shareToFacebook() {
+        const url = encodeURIComponent(window.location.href);
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+        closeSharePanel();
+    }
+
+    // 复制链接
+    function copyLink() {
+        const urlInput = document.getElementById('shareUrl');
+        urlInput.select();
+        document.execCommand('copy');
+        showNotification('链接已复制到剪贴板', 'success');
+
+        // 移动端兼容
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(urlInput.value);
+        }
+    }
+
+    // 动画效果函数
+    function animateElement(element) {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(-10px)';
+
+        setTimeout(() => {
+            element.style.transition = 'all 0.3s ease-out';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function animateElementOut(element, callback) {
+        element.style.transition = 'all 0.3s ease-out';
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(-10px)';
+
+        setTimeout(callback, 300);
+    }
+
+    function animateElementIn(element) {
+        element.style.transition = 'all 0.3s ease-out';
+        element.style.opacity = '1';
+        element.style.transform = 'translateY(0)';
+    }
+
+    // 检查是否没有评论
+    function checkEmptyComments() {
+        const commentsList = document.getElementById('commentsList');
+        if (commentsList.children.length === 0) {
+            commentsList.innerHTML = `
+                <div class="no-comments" id="noComments">
+                    <i class="fa fa-comments" style="font-size: 2rem; margin-bottom: 1rem; color: #ddd;"></i>
+                    <p>还没有评论，快来发表第一条评论吧！</p>
+                </div>
+            `;
+        }
+    }
+
+    // 页面卸载时清理定时器
+    window.addEventListener('beforeunload', function() {
+        if (likeUpdateInterval) {
+            clearInterval(likeUpdateInterval);
+        }
+    });
+    </script>
+</body>
+</html>

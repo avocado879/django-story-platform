@@ -3,17 +3,17 @@
 {% block title %}生成故事{% endblock %}
 
 {% block content %}
-<!-- 书香风格样式 -->
+<!-- 书香风格样式 - 仅作用于当前页面 -->
 <style>
-    body {
+    /* 使用特定ID限制样式作用范围 */
+    #story-generator {
         font-family: "Georgia", "Times New Roman", "SimSun", serif;
         background-color: #f9f6f0;
-        margin: 0;
         color: #3c2a21;
     }
 
     /* 容器样式 */
-    .container {
+    #story-generator .story-container {
         max-width: 800px;
         margin: 2rem auto;
         background-color: #fff;
@@ -22,14 +22,14 @@
         box-shadow: 0 0 8px rgba(109, 76, 65, 0.1);
     }
 
-    h1 {
+    #story-generator h1 {
         text-align: center;
         color: #6d4c41;
         margin-bottom: 20px;
         position: relative;
     }
 
-    h1::after {
+    #story-generator h1::after {
         content: '';
         display: block;
         width: 80px;
@@ -38,18 +38,18 @@
         margin: 8px auto 0;
     }
 
-    .form-group {
+    #story-generator .form-group {
         margin-bottom: 15px;
         position: relative;
     }
 
-    label {
+    #story-generator label {
         display: block;
         margin-bottom: 5px;
         color: #5a4638;
     }
 
-    select {
+    #story-generator select {
         width: 100%;
         padding: 10px;
         border: 1px solid #e0d8c8;
@@ -60,7 +60,7 @@
     }
 
     /* 按钮配色贴合书香风格 */
-    button {
+    #story-generator button {
         width: 100%;
         padding: 12px;
         border: none;
@@ -72,35 +72,35 @@
         font-family: "Georgia", "Times New Roman", "SimSun", serif;
     }
 
-    .submit-btn {
+    #story-generator .submit-btn {
         background-color: #8b5a2b;
         color: #fff;
     }
 
-    .submit-btn:hover {
+    #story-generator .submit-btn:hover {
         background-color: #6d4c41;
     }
 
-    .add-btn {
+    #story-generator .add-btn {
         background-color:#526334;
         color: #fff;
         display: none;
     }
 
-    .add-btn:hover {
-        background-color:#642525;
+    #story-generator .add-btn:hover {
+        background-color:#3c4a26;
     }
 
-    .history-btn {
+    #story-generator .history-btn {
         background-color: #0d4359;
         color: #fff;
     }
 
-    .history-btn:hover {
-        background-color: #642525;
+    #story-generator .history-btn:hover {
+        background-color: #09303f;
     }
 
-    .result {
+    #story-generator .result {
         margin-top: 20px;
         padding: 20px;
         border: 1px solid #e0d8c8;
@@ -109,7 +109,7 @@
         line-height: 1.8;
     }
 
-    .success-message {
+    #story-generator .success-message {
         background-color: #f2ebe0;
         color: #5a4638;
         padding: 15px;
@@ -119,13 +119,13 @@
         display: none;
     }
 
-    .view-library {
+    #story-generator .view-library {
         color: #8b5a2b;
         text-decoration: underline;
         cursor: pointer;
     }
 
-    .error-message {
+    #story-generator .error-message {
         color: #a02b2b;
         padding: 10px;
         text-align: center;
@@ -134,7 +134,7 @@
         margin: 10px 0;
     }
 
-    .story-title {
+    #story-generator .story-title {
         font-size: 1.5em;
         font-weight: bold;
         margin-bottom: 15px;
@@ -144,7 +144,7 @@
     }
 
     /* 用户信息样式 */
-    .user-info {
+    #story-generator .user-info {
         position: absolute;
         top: -30px;
         right: 0;
@@ -154,65 +154,72 @@
     }
 
     /* 故事内容样式 */
-    .story-content {
+    #story-generator .story-content {
         color: #444;
         font-size: 1.05rem;
         line-height: 1.8;
     }
 
-    .story-content p {
+    #story-generator .story-content p {
         margin-bottom: 1rem;
         text-align: justify;
     }
 
     /* 生成中提示动画 */
-    #storyResult .story-title:only-child {
+    #story-generator #storyResult .story-title:only-child {
         color: #777;
         font-size: 1.5rem;
-        animation: pulse 1.5s infinite;
+        animation: story-pulse 1.5s infinite;
     }
 
-    @keyframes pulse {
+    @keyframes story-pulse {
         0% { opacity: 0.7; }
         50% { opacity: 1; }
         100% { opacity: 0.7; }
     }
 </style>
 
-<div class="container">
-    <form class="story-form">
-        {% csrf_token %}
-        <h1>故事生成</h1>
-        <div class="form-group">
-            <label for="style">故事风格</label>
-            <div class="user-info" id="currentUserInfo">未登录</div>
-            <select id="style">
-                <option value="成语故事">成语故事</option>
-                <option value="童话故事">童话故事</option>
-                <option value="寓言故事">寓言故事</option>
-                <option value="睡前故事">睡前故事</option>
-                <option value="民间故事">民间故事</option>
-            </select>
+<div id="story-generator">
+    <div class="story-container">
+        <form class="story-form">
+            {% csrf_token %}
+            <h1>故事生成</h1>
+            <div class="form-group">
+                <label for="style">故事风格</label>
+                <div class="user-info" id="currentUserInfo">
+                    {% if user.is_authenticated %}
+                        用户:{{ user.username }}
+                    {% else %}
+                        未登录
+                    {% endif %}
+                </div>
+                <select id="style">
+                    <option value="成语故事">成语故事</option>
+                    <option value="童话故事">童话故事</option>
+                    <option value="寓言故事">寓言故事</option>
+                    <option value="睡前故事">睡前故事</option>
+                    <option value="民间故事">民间故事</option>
+                </select>
+            </div>
+            <button type="submit" class="submit-btn" id="btn1">生成故事</button>
+            <button type="button" id="addStoryBtn" class="add-btn">添加到故事库</button>
+            <button type="button" id="viewHistoryBtn" class="history-btn">查看历史故事</button>
+        </form>
+        <div id="successMessage" class="success-message">
+            故事已成功添加到故事库！<a href="{% url 'stories:stories' %}" class="view-library">查看故事库</a>
         </div>
-        <button type="submit" class="submit-btn" id="btn1">生成故事</button>
-        <button type="button" id="addStoryBtn" class="add-btn">添加到故事库</button>
-        <button type="button" id="viewHistoryBtn" class="history-btn">查看历史故事</button>
-    </form>
-    <div id="successMessage" class="success-message">
-        故事已成功添加到故事库！<a href="{% url 'stories:stories' %}" class="view-library">查看故事库</a>
+        <div id="storyResult" class="result"></div>
     </div>
-    <div id="storyResult" class="result"></div>
 </div>
 
 <!-- 引入jQuery -->
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
-
 <script>
     // 讯飞接口配置
-    const APP_ID = "4feabf23";
-    const API_KEY = "c98af365664d0627ef18efaa993dd86d";
-    const API_SECRET = "MjVlYjIzNzc5NWQzOTU0YzIxOGY3YTNm";
+    const APP_ID = "3ec70394";
+    const API_KEY = "265f9ebfffae679b50d23f1acdac7bf9";
+    const API_SECRET = "YmQ1OTZhNDJjNmYzMzM2NzlhODBiMGIy";
     const HOST = "spark-api.xf-yun.com";
     const PATH = "/v4.0/chat";
 
@@ -232,12 +239,11 @@
         return cookieValue;
     }
     const csrftoken = getCookie('csrftoken');
-    console.log('CSRF Token:', csrftoken); // 调试信息
+    console.log('CSRF Token:', csrftoken);
 
     let conversationHistory = [];
     let currentWs = null;
     let currentStory = null;
-    let currentUsername = '匿名用户';
 
     $(function() {
         // 检查登录状态
@@ -273,7 +279,7 @@
         // 添加到故事库
         $('#addStoryBtn').on('click', function() {
             if (currentStory) {
-                console.log('开始保存故事到数据库'); // 调试信息
+                console.log('开始保存故事到数据库');
                 saveStoryToDatabase(currentStory);
             } else {
                 showError('没有可保存的故事内容');
@@ -286,44 +292,41 @@
         });
     });
 
-    // 检查登录状态并获取用户名
+    // 检查登录状态
     function checkLoginStatus() {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-        if (currentUser && currentUser.username) {
-            currentUsername = currentUser.username;
-            $('#currentUserInfo').text(`当前用户: ${currentUsername}`);
-        } else {
-            $('#currentUserInfo').text('未登录');
+        // 直接从Django模板变量获取登录状态
+        const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+        if (!isAuthenticated) {
+            // 如果未登录，隐藏添加按钮
+            $('#addStoryBtn').hide();
         }
     }
 
-    // 保存故事到数据库
-    function saveStoryToDatabase(story) {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
-    if (!currentUser || !currentUser.username) {
+   // 保存故事到数据库
+function saveStoryToDatabase(story) {
+    const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+    if (!isAuthenticated) {
         showError('请先登录后再保存故事');
         return;
     }
 
     const title = extractTitle(story.content) || '新生成的故事';
-    const category = $('#style').val();
+    const category_name = $('#style').val();
     const content = formatStoryContent(story.content);
     const readTime = calculateReadTime(story.content);
     const imgId = Math.floor(Math.random() * 100) + 1;
 
     console.log('准备发送的数据:', {
         title: title,
-        category: category,
+        category_name: category_name,
         content_length: content.length,
         readTime: readTime,
-        imgId: imgId,
-        username: currentUser.username
+        imgId: imgId
     });
 
     // 显示保存中状态
     $('#addStoryBtn').prop('disabled', true).text('保存中...');
 
-    // 确保使用正确的CSRF token
     $.ajax({
         url: "{% url 'stories:save_story' %}",
         type: "POST",
@@ -333,19 +336,21 @@
         data: {
             title: title,
             content: content,
-            category: category,
+            category: category_name,
             img_id: imgId,
             read_time: readTime,
-            csrfmiddlewaretoken: csrftoken  // 也作为数据字段发送
+            csrfmiddlewaretoken: csrftoken
         },
         success: function(response) {
             console.log('服务器响应:', response);
             if (response.success) {
+                // 修改成功消息，提示需要审核
+                $('#successMessage').html('故事已提交审核！管理员审核通过后将会发布到故事库。<a href="{% url 'user:profile' %}" class="view-library">查看审核状态</a>');
                 $('#successMessage').show();
                 $('#addStoryBtn').hide();
                 setTimeout(() => {
                     $('#successMessage').fadeOut();
-                }, 3000);
+                }, 5000);
             } else {
                 showError('保存失败: ' + response.error);
                 $('#addStoryBtn').prop('disabled', false).text('添加到故事库');
@@ -360,6 +365,8 @@
                 errorMsg = 'CSRF验证失败，请刷新页面重试';
             } else if (xhr.status === 500) {
                 errorMsg = '服务器错误，请稍后重试';
+            } else if (xhr.status === 401) {
+                errorMsg = '请先登录后再保存故事';
             }
 
             showError(errorMsg);
@@ -376,9 +383,7 @@
 
     // 格式化故事内容
     function formatStoryContent(content) {
-        // 将换行转换为段落，同时移除标题中的#号
         const paragraphs = content.split('\n').filter(p => p.trim().length > 0);
-        // 处理第一行（标题行）的#号
         if (paragraphs.length > 0) {
             paragraphs[0] = paragraphs[0].replace(/#/g, '').trim();
         }
@@ -425,42 +430,36 @@
                     fullContent += content;
 
                     if (isFirstChunk) {
-                        // 首次获取内容时清空结果区
                         $('#storyResult').html('');
                         isFirstChunk = false;
                     }
 
-                    // 处理标题和内容的显示格式
                     if (!titleDisplayed) {
-                        // 尝试提取标题（首次出现换行前的内容作为标题）
                         if (fullContent.includes('\n')) {
                             let [title, contentAfterTitle] = fullContent.split('\n', 2);
-                            // 移除标题中的#号
                             title = title.replace(/#/g, '').trim();
-                            // 显示标题（已移除长横线）
                             $('#storyResult').html(`
                                 <div class="story-title">${title}</div>
                                 <div class="story-content">${contentAfterTitle}</div>
                             `);
                             titleDisplayed = true;
-                            // 保存当前故事内容
                             currentStory = { content: fullContent };
-                            // 显示添加按钮
-                            $('#addStoryBtn').show();
+
+                            // 只有登录用户才显示添加按钮
+                            const isAuthenticated = {% if user.is_authenticated %}true{% else %}false{% endif %};
+                            if (isAuthenticated) {
+                                $('#addStoryBtn').show();
+                            }
                         } else {
-                            // 还未获取到完整标题，临时显示
                             let tempTitle = fullContent.replace(/#/g, '').trim();
                             $('#storyResult').html(`<div class="story-title">${tempTitle}</div>`);
                         }
                     } else {
-                        // 已有标题，只更新内容部分
                         const currentContent = $('.story-content').html() || '';
                         $('.story-content').html(currentContent + content);
-                        // 更新当前故事内容
                         currentStory = { content: fullContent };
                     }
 
-                    // 如果是最后一块内容，结束处理
                     if (response.header.status === 2) {
                         currentWs.close();
                         resolve(fullContent);

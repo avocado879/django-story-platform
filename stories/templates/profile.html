@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 故事会</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Georgia", "Times New Roman", "SimSun", serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f9f6f0 0%, #e8dcc5 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8b5a2b 0%, #6d4c41 100%);
+            color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(139, 90, 43, 0.1);
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(139, 90, 43, 0.1);
+        }
+
+        .user-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* 头像上传样式 */
+        .avatar-upload {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #8b5a2b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f8f8f0;
+        }
+
+        .avatar-preview:hover {
+            opacity: 0.8;
+        }
+
+        .avatar-upload-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #8b5a2b;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .avatar-upload-btn:hover {
+            background: #6d4c41;
+            transform: translateY(-2px);
+        }
+
+        #avatarInput {
+            display: none;
+        }
+
+        .uploading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: #f8f8f0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #8b5a2b;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8b5a2b;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 10px;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 12px 15px;
+            background: #f8f8f0;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            color: #6d4c41;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #8b5a2b;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #6d4c41;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f8f8f0;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #8b5a2b 0%, #6d4c41 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 90, 43, 0.3);
+        }
+
+        .message {
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .error {
+            background: rgba(255, 235, 238, 0.9);
+            color: #d32f2f;
+            border: 2px solid #f44336;
+        }
+
+        .success {
+            background: rgba(232, 245, 233, 0.9);
+            color: #388e3c;
+            border: 2px solid #4caf50;
+        }
+
+        /* 故事列表样式 */
+        .story-item {
+            background: #f8f8f0;
+            border: 2px solid #8b5a2b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .story-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 90, 43, 0.2);
+        }
+
+        .story-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .story-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #6d4c41;
+            margin-bottom: 5px;
+        }
+
+        .story-meta {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .story-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .story-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-approved {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .review-note {
+            background: #fff;
+            border-left: 4px solid #e74c3c;
+            padding: 10px 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .review-note strong {
+            color: #e74c3c;
+        }
+
+        .story-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: 1px solid #8b5a2b;
+            border-radius: 4px;
+            background: transparent;
+            color: #8b5a2b;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #8b5a2b;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        .story-content-preview {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>个人中心</h1>
+            <p>管理您的个人资料和创作</p>
+        </div>
+
+        <div class="profile-content">
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <div class="user-info">
+                    <div class="avatar-upload">
+                        <div class="avatar-container">
+                            <img id="avatarPreview" src="{{ user.get_avatar_url }}" alt="头像" class="avatar-preview" onclick="document.getElementById('avatarInput').click()">
+                        </div>
+                        <div>
+                            <input type="file" id="avatarInput" accept="image/*">
+                            <label for="avatarInput" class="avatar-upload-btn">
+                                <i class="fas fa-camera"></i> 更换头像
+                            </label>
+                        </div>
+                    </div>
+                    <h2 id="usernameDisplay">{{ user.username }}</h2>
+                    <p>会员 since {{ user.date_joined|date:"Y-m-d" }}</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="storiesCount">{{ user_stories.count }}</div>
+                        <div>我的故事</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="commentsCount">{{ user_comments.count }}</div>
+                        <div>我的评论</div>
+                    </div>
+                </div>
+
+                <ul class="nav-links">
+                    <li><a href="#profile" onclick="showSection('profile')"><i class="fas fa-user-edit"></i> 编辑资料</a></li>
+                    <li><a href="#stories" onclick="showSection('stories')"><i class="fas fa-book"></i> 我的故事</a></li>
+                    <li><a href="#comments" onclick="showSection('comments')"><i class="fas fa-comments"></i> 我的评论</a></li>
+                    <li><a href="{% url 'stories:index' %}"><i class="fas fa-home"></i> 返回首页</a></li>
+                    <li><a href="{% url 'user:logout' %}" onclick="return confirm('确定要退出登录吗？')"><i class="fas fa-sign-out-alt"></i> 退出登录</a></li>
+                </ul>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <div id="profileMessage" class="message"></div>
+
+                <!-- 编辑资料部分 -->
+                <div id="profileSection">
+                    <h2><i class="fas fa-user-edit"></i> 编辑个人资料</h2>
+                    <form id="profileForm">
+                        {% csrf_token %}
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email"><i class="fas fa-envelope"></i> 邮箱地址</label>
+                                <input type="email" id="email" name="email" value="{{ user.email }}" placeholder="请输入您的邮箱地址">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone"><i class="fas fa-phone"></i> 手机号码</label>
+                                <input type="tel" id="phone" name="phone" value="{{ user.phone }}" placeholder="请输入您的手机号码" pattern="[0-9]{11}">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pen_name"><i class="fas fa-pen"></i> 笔名</label>
+                            <input type="text" id="pen_name" name="pen_name" value="{{ user.pen_name }}" placeholder="请输入您的笔名">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bio"><i class="fas fa-info-circle"></i> 个人简介</label>
+                            <textarea id="bio" name="bio" placeholder="介绍一下你自己...">{{ user.bio }}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>通知设置</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="notify_comments" name="notify_comments" {% if user.notify_comments %}checked{% endif %}>
+                                <label for="notify_comments">有新评论时通知我</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="notify_likes" name="notify_likes" {% if user.notify_likes %}checked{% endif %}>
+                                <label for="notify_likes">有人点赞时通知我</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i> 保存更改
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 我的故事部分 -->
+                <div id="storiesSection" style="display: none;">
+                    <h2><i class="fas fa-book"></i> 我的故事</h2>
+                    <div id="storiesList">
+                        {% for story in user_stories %}
+                        <div class="story-item">
+                            <div class="story-header">
+                                <h3 class="story-title">{{ story.title }}</h3>
+                                <div>
+                                    {% if story.status == 'pending' %}
+                                        <span class="story-status status-pending">待审核</span>
+                                    {% elif story.status == 'approved' %}
+                                        <span class="story-status status-approved">已发布</span>
+                                    {% elif story.status == 'rejected' %}
+                                        <span class="story-status status-rejected">已拒绝</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="story-meta">
+                                <span>分类: {{ story.category.name }}</span> |
+                                <span>发布于 {{ story.created_at|date:"Y-m-d H:i" }}</span> |
+                                <span>点赞: {{ story.likes }}</span> |
+                                <span>阅读: {{ story.views }}</span>
+                            </div>
+                            <div class="story-content-preview">
+                                {{ story.content|striptags|truncatewords:50 }}
+                            </div>
+
+                            {% if story.status == 'rejected' and story.review_note %}
+                            <div class="review-note">
+                                <strong>审核备注:</strong> {{ story.review_note }}
+                            </div>
+                            {% endif %}
+
+                            <div class="story-actions">
+                                <a href="{% url 'stories:story_detail' story.id %}" class="action-btn">查看详情</a>
+                                {% if story.status == 'approved' %}
+                                    <span class="action-btn" style="background: #28a745; color: white; border-color: #28a745;">
+                                        <i class="fas fa-check"></i> 已发布到故事库
+                                    </span>
+                                {% elif story.status == 'rejected' %}
+                                    <span class="action-btn" style="background: #dc3545; color: white; border-color: #dc3545;">
+                                        <i class="fas fa-times"></i> 审核未通过
+                                    </span>
+                                {% else %}
+                                    <span class="action-btn" style="background: #ffc107; color: #212529; border-color: #ffc107;">
+                                        <i class="fas fa-clock"></i> 等待审核中
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-book"></i>
+                            <h3>您还没有发布过故事</h3>
+                            <p>快去<a href="{% url 'stories:generate_story' %}">生成</a>您的第一个故事吧！</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 我的评论部分 -->
+                <div id="commentsSection" style="display: none;">
+                    <h2><i class="fas fa-comments"></i> 我的评论</h2>
+                    <div id="commentsList">
+                        {% for comment in user_comments %}
+                        <div class="story-item">
+                            <div class="story-content">
+                                {{ comment.content }}
+                            </div>
+                            <div class="story-meta">
+                                评论于 {{ comment.created_at|date:"Y-m-d H:i" }} |
+                                故事: <a href="{% url 'stories:story_detail' comment.story.id %}">{{ comment.story.title }}</a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <h3>您还没有发表过评论</h3>
+                            <p>快去您喜欢的故事下面发表评论吧！</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 显示消息
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('profileMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+
+            if (type === 'error') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // 切换部分显示
+        function showSection(sectionName) {
+            document.getElementById('profileSection').style.display = 'none';
+            document.getElementById('storiesSection').style.display = 'none';
+            document.getElementById('commentsSection').style.display = 'none';
+            document.getElementById(sectionName + 'Section').style.display = 'block';
+        }
+
+        // 获取CSRF token
+        function getCSRFToken() {
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            return csrfInput ? csrfInput.value : '';
+        }
+
+        // 表单提交事件
+        document.getElementById('profileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = {
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                pen_name: document.getElementById('pen_name').value,
+                bio: document.getElementById('bio').value,
+                notify_comments: document.getElementById('notify_comments').checked,
+                notify_likes: document.getElementById('notify_likes').checked
+            };
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+
+            fetch("{% url 'user:update_profile' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    // 更新笔名显示
+                    document.getElementById('usernameDisplay').textContent = data.pen_name || formData.pen_name;
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('保存失败:', error);
+                showMessage('保存失败，请重试', 'error');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> 保存更改';
+            });
+        });
+
+        // 头像上传功能
+        document.getElementById('avatarInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    showMessage('请选择图片文件！', 'error');
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    showMessage('图片大小不能超过2MB！', 'error');
+                    return;
+                }
+
+                uploadAvatar(file);
+            }
+        });
+
+        function uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('csrfmiddlewaretoken', getCSRFToken());
+
+    const avatarPreview = document.getElementById('avatarPreview');
+    const uploadBtn = document.querySelector('.avatar-upload-btn');
+
+    // 保存原始头像
+    const originalAvatarUrl = avatarPreview.src;
+
+    // 显示上传状态
+    avatarPreview.classList.add('uploading');
+    uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 上传中...';
+    uploadBtn.style.pointerEvents = 'none';
+
+    // 立即显示本地预览
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        avatarPreview.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    // 上传到服务器
+    fetch("{% url 'user:upload_avatar' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('上传响应:', data);
+        if (data.success) {
+            showMessage('头像上传成功！', 'success');
+
+            // 重要：更新头像预览为服务器返回的URL
+            if (data.avatar_url) {
+                // 添加时间戳避免缓存
+                const timestamp = new Date().getTime();
+                const separator = data.avatar_url.includes('?') ? '&' : '?';
+                const newAvatarUrl = data.avatar_url + separator + 't=' + timestamp;
+
+                avatarPreview.src = newAvatarUrl;
+
+                // 强制刷新页面以确保所有地方都使用新头像
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        } else {
+            showMessage(data.message || '上传失败', 'error');
+            avatarPreview.src = originalAvatarUrl;
+        }
+    })
+    .catch(error => {
+        console.error('上传失败:', error);
+        showMessage('上传失败，请检查网络连接', 'error');
+        avatarPreview.src = originalAvatarUrl;
+    })
+    .finally(() => {
+        avatarPreview.classList.remove('uploading');
+        uploadBtn.innerHTML = '<i class="fas fa-camera"></i> 更换头像';
+        uploadBtn.style.pointerEvents = 'auto';
+        document.getElementById('avatarInput').value = '';
+    });
+}
+
+        // 页面加载时显示个人资料部分
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('profile');
+
+            // 初始化头像图片，避免缓存问题
+            const avatarPreview = document.getElementById('avatarPreview');
+            if (avatarPreview && avatarPreview.src) {
+                const originalSrc = avatarPreview.src;
+                const timestamp = new Date().getTime();
+                const separator = originalSrc.includes('?') ? '&' : '?';
+                avatarPreview.src = originalSrc + separator + 't=' + timestamp;
+            }
+
+            // 如果有URL哈希，显示对应部分
+            if (window.location.hash) {
+                const sectionName = window.location.hash.substring(1);
+                if (sectionName && document.getElementById(sectionName + 'Section')) {
+                    showSection(sectionName);
+                }
+            }
+        });
+
+        // 更新导航链接的哈希
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    window.location.hash = this.getAttribute('href');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -81,15 +81,30 @@ WSGI_APPLICATION = 'DjangoProject4.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+# DATABASES = {
+# 'default': {
+# 'ENGINE': 'django.db.backends.mysql',
+# 'NAME': 'dbmysql', # 数据库名
+# 'USER': 'root', # MySQL用户名
+# 'PASSWORD': 'root', # MySQL密码
+# 'HOST': 'localhost', # 数据库主机地址
+# 'PORT': '3306', # 数据库端口号，默认是3306
+# }
+# }
+
 DATABASES = {
-'default': {
-'ENGINE': 'django.db.backends.mysql',
-'NAME': 'dbmysql', # 数据库名
-'USER': 'root', # MySQL用户名
-'PASSWORD': 'root', # MySQL密码
-'HOST': 'localhost', # 数据库主机地址
-'PORT': '3306', # 数据库端口号，默认是3306
-}
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'stories_dbmysql',  # 数据库名
+        'USER': 'Qbb',              # 用户名
+        'PASSWORD': 'Qibingbing1',  # 密码
+        'HOST': 'rm-bp1ib7vn4k7iq52o1io.mysql.rds.aliyuncs.com',  #地址
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
+    }
 }
 
 
@@ -128,6 +143,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 # 配置自定义用户模型
 AUTH_USER_MODEL = 'user.CustomerUser'
 
@@ -139,3 +156,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 阿里云OSS配置
+ALIYUN_OSS_ACCESS_KEY_ID = 'LTAI5tKvnN36EK5qif5uTU5F'
+ALIYUN_OSS_ACCESS_KEY_SECRET = 'bC0dUZZSTzPkIzDxzDd9VgWRzgAnkX'
+ALIYUN_OSS_ENDPOINT = 'oss-cn-hangzhou.aliyuncs.com'  # 根据你的OSS区域修改
+ALIYUN_OSS_BUCKET_NAME = 'storyai2'
+
+# 默认头像URL（使用本地默认头像）
+DEFAULT_AVATAR_URL = '/static/img/book.jpg'

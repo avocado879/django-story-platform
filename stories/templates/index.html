@@ -5,16 +5,16 @@
 
 {% block extra_css %}
 <style>
-    /* 英雄区域样式 */
+    /* 首页内容样式 */
     .hero {
-      padding: 80px 0;
+      padding: 40px 0;
       background-color: #fff;
-      margin-bottom: 0;
-      border-radius: 8px;
-      height: calc(100vh - 80px); /* 适配视口高度，减去导航栏高度 */
+      margin: 0;
+      height: calc(100vh - 80px);
       box-shadow: 0 2px 6px rgba(109, 76, 65, 0.1);
       display: flex;
       align-items: center;
+      border-top: 1px solid #e8dcc5;
     }
 
     .hero-content {
@@ -70,7 +70,7 @@
       flex-direction: column;
       gap: 12px;
       max-width: 280px;
-      margin-top: auto; /* 移动端按钮靠下 */
+      margin-top: auto;
     }
 
     @media (min-width: 640px) {
@@ -127,7 +127,7 @@
     /* 信任区域 */
     .trust-section {
       margin-top: 32px;
-      margin-bottom: auto; /* 移动端信任区域靠下 */
+      margin-bottom: auto;
     }
 
     .trust-text {
@@ -194,7 +194,7 @@
 
     .story-image {
       max-width: 100%;
-      max-height: 70vh; /* 限制图片高度，避免溢出 */
+      max-height: 70vh;
       border-radius: 6px;
       box-shadow: 0 6px 15px rgba(109, 76, 65, 0.1);
       transition: transform 0.3s ease;
@@ -215,6 +215,7 @@
       <div class="hero-text">
         <h1 class="hero-title">为你创造<br>专属奇妙故事</h1>
         <p class="hero-desc">只需选择风格，就能生成独一无二的精彩故事，满足睡前陪伴、亲子互动、创意启发等需求。</p>
+
         <!-- 英雄区按钮：均需登录 -->
         <div class="hero-buttons">
           {% if user.is_authenticated %}
@@ -233,6 +234,7 @@
             </a>
           {% endif %}
         </div>
+
         <div class="trust-section">
           <p class="trust-text">万千故事爱好者的选择</p>
           <div class="trust-content">
@@ -242,7 +244,7 @@
                 <i class="fa fa-star"></i>
                 <i class="fa fa-star"></i>
                 <i class="fa fa-star"></i>
-                <i class="fa fa-star-half-o"></i>
+                <i class="fa fa-star-half-alt"></i>
               </div>
               <span class="rating-text">4.9/5 好评</span>
             </div>
@@ -257,8 +259,265 @@
   </div>
 </section>
 {% endblock %}
-
-
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{#{% block title %}故事会 - 首页{% endblock %}#}
+{#{% block extra_css %}#}
+{#<style>#}
+{#    /* 英雄区域样式 */#}
+{#    .hero {#}
+{#      padding: 80px 0;#}
+{#      background-color: #fff;#}
+{#      margin-bottom: 0;#}
+{#      border-radius: 8px;#}
+{#      height: calc(100vh - 80px); /* 适配视口高度，减去导航栏高度 */#}
+{#      box-shadow: 0 2px 6px rgba(109, 76, 65, 0.1);#}
+{#      display: flex;#}
+{#      align-items: center;#}
+{#    }#}
+{##}
+{#    .hero-content {#}
+{#      display: flex;#}
+{#      flex-direction: column;#}
+{#      width: 100%;#}
+{#      align-items: center;#}
+{#    }#}
+{##}
+{#    @media (min-width: 992px) {#}
+{#      .hero-content {#}
+{#        flex-direction: row;#}
+{#        align-items: center;#}
+{#        gap: 40px;#}
+{#      }#}
+{#    }#}
+{##}
+{#    .hero-text {#}
+{#      flex: 1;#}
+{#      text-align: center;#}
+{#      display: flex;#}
+{#      flex-direction: column;#}
+{#      justify-content: center;#}
+{#      align-items: center;#}
+{#      height: 100%;#}
+{#    }#}
+{##}
+{#    @media (min-width: 992px) {#}
+{#      .hero-text {#}
+{#        text-align: left;#}
+{#        align-items: flex-start;#}
+{#      }#}
+{#    }#}
+{##}
+{#    .hero-title {#}
+{#      font-size: clamp(24px, 4vw, 36px);#}
+{#      font-weight: 700;#}
+{#      line-height: 1.2;#}
+{#      margin-bottom: 16px;#}
+{#      color: #6d4c41;#}
+{#    }#}
+{##}
+{#    .hero-desc {#}
+{#      font-size: 16px;#}
+{#      color: #5a4638;#}
+{#      margin-bottom: 24px;#}
+{#      max-width: 500px;#}
+{#    }#}
+{##}
+{#    /* 按钮样式 */#}
+{#    .hero-buttons {#}
+{#      display: flex;#}
+{#      flex-direction: column;#}
+{#      gap: 12px;#}
+{#      max-width: 280px;#}
+{#      margin-top: auto; /* 移动端按钮靠下 */#}
+{#    }#}
+{##}
+{#    @media (min-width: 640px) {#}
+{#      .hero-buttons {#}
+{#        flex-direction: row;#}
+{#        max-width: none;#}
+{#      }#}
+{#    }#}
+{##}
+{#    @media (min-width: 992px) {#}
+{#      .hero-buttons {#}
+{#        margin-top: 0;#}
+{#      }#}
+{#    }#}
+{##}
+{#    .btn {#}
+{#      padding: 10px 20px;#}
+{#      border-radius: 4px;#}
+{#      font-size: 15px;#}
+{#      font-weight: 500;#}
+{#      text-decoration: none;#}
+{#      text-align: center;#}
+{#      transition: all 0.3s ease;#}
+{#      display: inline-flex;#}
+{#      align-items: center;#}
+{#      justify-content: center;#}
+{#      gap: 6px;#}
+{#    }#}
+{##}
+{#    .btn-primary {#}
+{#      background-color: #8b5a2b;#}
+{#      color: #fff;#}
+{#    }#}
+{##}
+{#    .btn-primary:hover {#}
+{#      background-color: #6d4c41;#}
+{#      transform: translateY(-2px);#}
+{#      box-shadow: 0 3px 8px rgba(139, 90, 43, 0.15);#}
+{#    }#}
+{##}
+{#    .btn-secondary {#}
+{#      background-color: transparent;#}
+{#      border: 1px solid #d8c8b5;#}
+{#      color: #6d4c41;#}
+{#    }#}
+{##}
+{#    .btn-secondary:hover {#}
+{#      border-color: #8b5a2b;#}
+{#      color: #8b5a2b;#}
+{#      background-color: rgba(139, 90, 43, 0.05);#}
+{#      transform: translateY(-2px);#}
+{#    }#}
+{##}
+{#    /* 信任区域 */#}
+{#    .trust-section {#}
+{#      margin-top: 32px;#}
+{#      margin-bottom: auto; /* 移动端信任区域靠下 */#}
+{#    }#}
+{##}
+{#    .trust-text {#}
+{#      font-size: 14px;#}
+{#      color: #888888;#}
+{#      margin-bottom: 12px;#}
+{#      text-align: center;#}
+{#    }#}
+{##}
+{#    @media (min-width: 992px) {#}
+{#      .trust-text {#}
+{#        text-align: left;#}
+{#      }#}
+{#    }#}
+{##}
+{#    .trust-content {#}
+{#      display: flex;#}
+{#      flex-direction: column;#}
+{#      align-items: center;#}
+{#      gap: 12px;#}
+{#    }#}
+{##}
+{#    @media (min-width: 640px) {#}
+{#      .trust-content {#}
+{#        flex-direction: row;#}
+{#        align-items: center;#}
+{#        gap: 16px;#}
+{#      }#}
+{#    }#}
+{##}
+{#    @media (min-width: 992px) {#}
+{#      .trust-content {#}
+{#        justify-content: flex-start;#}
+{#      }#}
+{#    }#}
+{##}
+{#    /* 星级评论样式 */#}
+{#    .rating {#}
+{#      display: flex;#}
+{#      align-items: center;#}
+{#      gap: 6px;#}
+{#    }#}
+{##}
+{#    .stars {#}
+{#      display: flex;#}
+{#      color: #f5c518;#}
+{#      font-size: 14px;#}
+{#    }#}
+{##}
+{#    .rating-text {#}
+{#      font-size: 13px;#}
+{#      color: #666666;#}
+{#      font-weight: 500;#}
+{#    }#}
+{##}
+{#    /* 区域图片 */#}
+{#    .hero-image {#}
+{#      flex: 1;#}
+{#      display: flex;#}
+{#      justify-content: center;#}
+{#      align-items: center;#}
+{#      height: 100%;#}
+{#    }#}
+{##}
+{#    .story-image {#}
+{#      max-width: 100%;#}
+{#      max-height: 70vh; /* 限制图片高度，避免溢出 */#}
+{#      border-radius: 6px;#}
+{#      box-shadow: 0 6px 15px rgba(109, 76, 65, 0.1);#}
+{#      transition: transform 0.3s ease;#}
+{#      object-fit: cover;#}
+{#    }#}
+{##}
+{#    .story-image:hover {#}
+{#      transform: translateY(-3px);#}
+{#    }#}
+{#</style>#}
+{#{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<!-- 首页区域-->#}
+{#<section class="hero">#}
+{#  <div class="container">#}
+{#    <div class="hero-content">#}
+{#      <div class="hero-text">#}
+{#        <h1 class="hero-title">为你创造<br>专属奇妙故事</h1>#}
+{#        <p class="hero-desc">只需选择风格，就能生成独一无二的精彩故事，满足睡前陪伴、亲子互动、创意启发等需求。</p>#}
+{#        <!-- 英雄区按钮：均需登录 -->#}
+{#        <div class="hero-buttons">#}
+{#          {% if user.is_authenticated %}#}
+{#            <a href="{% url 'stories:generate_story' %}" class="btn btn-primary">#}
+{#              开始创作 <i class="fa fa-magic"></i>#}
+{#            </a>#}
+{#            <a href="{% url 'stories:stories' %}" class="btn btn-secondary">#}
+{#              浏览故事 <i class="fa fa-book"></i>#}
+{#            </a>#}
+{#          {% else %}#}
+{#            <a href="{% url 'user:login' %}" class="btn btn-primary">#}
+{#              开始创作 <i class="fa fa-magic"></i>#}
+{#            </a>#}
+{#            <a href="{% url 'user:login' %}" class="btn btn-secondary">#}
+{#              浏览故事 <i class="fa fa-book"></i>#}
+{#            </a>#}
+{#          {% endif %}#}
+{#        </div>#}
+{#        <div class="trust-section">#}
+{#          <p class="trust-text">万千故事爱好者的选择</p>#}
+{#          <div class="trust-content">#}
+{#            <div class="rating">#}
+{#              <div class="stars">#}
+{#                <i class="fa fa-star"></i>#}
+{#                <i class="fa fa-star"></i>#}
+{#                <i class="fa fa-star"></i>#}
+{#                <i class="fa fa-star"></i>#}
+{#                <i class="fa fa-star-half-o"></i>#}
+{#              </div>#}
+{#              <span class="rating-text">4.9/5 好评</span>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+{#      </div>#}
+{##}
+{#      <div class="hero-image">#}
+{#        <img src="/static/img/book.jpg" alt="AI生成故事展示" class="story-image">#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{#</section>#}
+{#{% endblock %}#}
+{##}
+{##}
 {#<!DOCTYPE html>#}
 {#<html lang="zh-CN">#}
 {#<head>#}
